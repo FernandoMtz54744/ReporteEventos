@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Reporte de Eventos</string>
+
+    <array name="modulos">
+        <item>Login</item>
+        <item>Registro</item>
+        <item>Solicitudes</item>
+        <item>Dar de Baja</item>
+        <item>Reportes</item>
+
+        <item>Seguimiento de Recorrido</item>
+        <item>Calendario</item>
+        <item>Equipos</item>
+
+    </array>
+</resources>
