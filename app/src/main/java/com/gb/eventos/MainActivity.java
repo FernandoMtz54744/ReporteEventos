@@ -1,6 +1,8 @@
 package com.gb.eventos;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,23 +16,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public static final String DATABASE_NAME = "ReportesEventos";
 
-    TextView verReportes;
-    EditText reportante, clasificacion, descripcion, ingeniero;
-    Spinner modulos;
+    TextView verReportes, tIngeniero;
+    EditText reportante, clasificacion, descripcion;
+    Spinner modulos, ingeniero;
 
     SQLiteDatabase base;
+
+    static final String Preferences = "UserPreferences";
+    static final String Name = "nameKey";
+    static final String Position = "positionKey";
+
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        sharedPreferences = getSharedPreferences(Preferences, Context.MODE_PRIVATE);
+
+        Toast.makeText(getApplicationContext(),
+                "Bienvenido " + sharedPreferences.getString(Name, "default"), Toast.LENGTH_LONG).show();
+
         verReportes = (TextView) findViewById(R.id.consultar);
         reportante = (EditText) findViewById(R.id.reportante);
         clasificacion = (EditText) findViewById(R.id.clasificacion);
         descripcion = (EditText) findViewById(R.id.descripcion);
-        ingeniero =  (EditText) findViewById(R.id.ingeniero);
+        ingeniero =  (Spinner) findViewById(R.id.ingeniero);
         modulos = (Spinner) findViewById(R.id.modulos);
+        tIngeniero = (TextView) findViewById(R.id.tIngeniero);
+
+        if(sharedPreferences.getString(Position, "default").equals("gerente")) {
+            ingeniero.setVisibility(View.VISIBLE);
+            tIngeniero.setVisibility(View.VISIBLE);
+        }else {
+            ingeniero.setVisibility(View.GONE);
+            tIngeniero.setVisibility(View.GONE);
+        }
 
         findViewById(R.id.registrar).setOnClickListener(this);
         verReportes.setOnClickListener(this);
@@ -83,9 +105,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String clasi = clasificacion.getText().toString().trim();
         String mod = modulos.getSelectedItem().toString();
         String desc = descripcion.getText().toString().trim();
-        String inge = ingeniero.getText().toString().trim();
+        String inge = ingeniero.getSelectedItem().toString();
 
         if (validar(rep, clasi, desc)) {
+
+            if(inge.equals("Selecciona un ingeniero")) {
+                inge = "Ingeniero no asignado";
+            }
 
             String insertSQL = "INSERT INTO eventos \n" +
                     "(reportante, modulo, clasificacion, descripcion, ingeniero, estado)\n" +

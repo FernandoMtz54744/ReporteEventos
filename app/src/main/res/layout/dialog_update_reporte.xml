@@ -44,11 +44,19 @@
         android:layout_height="wrap_content"
         android:hint="Descripcion" />
 
-    <EditText
+    <TextView
+        android:id="@+id/tIngenieroA"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="6dp"
+        android:text="Ingeniero" />
+
+    <Spinner
         android:id="@+id/ingenieroA"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Ingeniero" />
+        android:entries="@array/ingenieros"/>
 
     <Button
         android:id="@+id/actualizar"

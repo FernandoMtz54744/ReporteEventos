@@ -7,10 +7,16 @@
         <item>Solicitudes</item>
         <item>Dar de Baja</item>
         <item>Reportes</item>
-
         <item>Seguimiento de Recorrido</item>
         <item>Calendario</item>
         <item>Equipos</item>
 
+    </array>
+
+    <array name="ingenieros">
+        <item>Selecciona un ingeniero</item>
+        <item>Ingeniero 1</item>
+        <item>Ingeniero 2</item>
+        <item>Ingeniero 3</item>
     </array>
 </resources>

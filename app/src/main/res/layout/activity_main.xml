@@ -62,13 +62,19 @@
             android:gravity="start|top"
             android:inputType="textMultiLine" />
 
-        <EditText
+        <TextView
+            android:id="@+id/tIngeniero"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:paddingLeft="6dp"
+            android:text="Ingeniero" />
+
+        <Spinner
             android:id="@+id/ingeniero"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Ingeniero de Soporte"
-            android:inputType="textPersonName" />
+            android:entries="@array/ingenieros"/>
 
         <Button
             android:id="@+id/registrar"

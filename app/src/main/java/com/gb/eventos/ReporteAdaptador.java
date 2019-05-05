@@ -26,14 +26,17 @@ public class ReporteAdaptador extends ArrayAdapter<Reporte> {
     int listLayoutRes;
     List<Reporte> reporteList;
     SQLiteDatabase mDatabase;
+    String cargo, nombre;
 
-    public ReporteAdaptador(Context mCtx, int listLayoutRes, List<Reporte> reporteList, SQLiteDatabase mDatabase) {
+    public ReporteAdaptador(Context mCtx, int listLayoutRes, List<Reporte> reporteList, SQLiteDatabase mDatabase, String cargo, String nombre) {
         super(mCtx, listLayoutRes, reporteList);
 
         this.mCtx = mCtx;
         this.listLayoutRes = listLayoutRes;
         this.reporteList = reporteList;
         this.mDatabase = mDatabase;
+        this.cargo = cargo;
+        this.nombre = nombre;
     }
 
     @NonNull
@@ -56,14 +59,25 @@ public class ReporteAdaptador extends ArrayAdapter<Reporte> {
         descripcion.setText(reporte.getDescripcion());
         ingeniero.setText(reporte.getIngeniero());
 
-
         Button buttonCerrar = view.findViewById(R.id.cerrar);
         Button buttonEditar = view.findViewById(R.id.editar);
+
+        if(cargo.equals("gerente") || (cargo.equals("ingeniero") && nombre.equals(reporte.getIngeniero().toLowerCase()))) {
+            buttonEditar.setVisibility(View.VISIBLE);
+        }else {
+            buttonEditar.setVisibility(View.GONE);
+        }
+
+        if(cargo.equals("ingeniero") && nombre.equals(reporte.getIngeniero().toLowerCase())) {
+            buttonCerrar.setVisibility(View.VISIBLE);
+        }else {
+            buttonCerrar.setVisibility(View.GONE);
+        }
 
         buttonEditar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateReporte(reporte);
+                updateReporte(reporte, cargo);
             }
         });
 
@@ -104,7 +118,7 @@ public class ReporteAdaptador extends ArrayAdapter<Reporte> {
     }
 
 
-    private void updateReporte(final Reporte reporte) {
+    private void updateReporte(final Reporte reporte, String cargo) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
 
         LayoutInflater inflater = LayoutInflater.from(mCtx);
@@ -115,13 +129,21 @@ public class ReporteAdaptador extends ArrayAdapter<Reporte> {
         final EditText reportante = view.findViewById(R.id.reportanteA);
         final EditText clasificacion = view.findViewById(R.id.clasificaionA);
         final EditText descripcion = view.findViewById(R.id.descripcionA);
-        final EditText ingeniero = view.findViewById(R.id.ingenieroA);
+        final Spinner ingeniero = view.findViewById(R.id.ingenieroA);
         final Spinner modulo = view.findViewById(R.id.modulosA);
+        final TextView tIngeniero = view.findViewById(R.id.tIngenieroA);
 
         reportante.setText(reporte.getReportante());
         clasificacion.setText(reporte.getClasificacion());
         descripcion.setText(reporte.getDescripcion());
-        ingeniero.setText(reporte.getIngeniero());
+
+        if(cargo.equals("gerente")) {
+            ingeniero.setVisibility(View.VISIBLE);
+            tIngeniero.setVisibility(View.VISIBLE);
+        }else {
+            ingeniero.setVisibility(View.GONE);
+            tIngeniero.setVisibility(View.GONE);
+        }
 
         final AlertDialog dialog = builder.create();
         dialog.show();
@@ -132,7 +154,7 @@ public class ReporteAdaptador extends ArrayAdapter<Reporte> {
                 String rep = reportante.getText().toString().trim();
                 String clas = clasificacion.getText().toString().trim();
                 String desc = descripcion.getText().toString().trim();
-                String inge = ingeniero.getText().toString().trim();
+                String inge = ingeniero.getSelectedItem().toString();
                 String modu = modulo.getSelectedItem().toString();
 
                 if (rep.isEmpty()) {
@@ -152,10 +174,8 @@ public class ReporteAdaptador extends ArrayAdapter<Reporte> {
                     return;
                 }
 
-                if (inge.isEmpty()) {
-                    ingeniero.setError("ingrese un ingeniero");
-                    ingeniero.requestFocus();
-                    return;
+                if (inge.equals("Selecciona un ingeniero")) {
+                    inge = "Ingeniero no asignado";
                 }
 
                 String sql = "UPDATE eventos \n" +

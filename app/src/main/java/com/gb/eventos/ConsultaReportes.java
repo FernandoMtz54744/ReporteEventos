@@ -1,6 +1,8 @@
 package com.gb.eventos;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -20,6 +22,12 @@ public class ConsultaReportes extends AppCompatActivity {
     ReporteAdaptador adapter;
     Button cerrados;
 
+    static final String Preferences = "UserPreferences";
+    static final String Name = "nameKey";
+    static final String Position = "positionKey";
+
+    SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +37,8 @@ public class ConsultaReportes extends AppCompatActivity {
         reportesList = new ArrayList<>();
 
         mDatabase = openOrCreateDatabase(MainActivity.DATABASE_NAME, MODE_PRIVATE, null);
+
+        sharedPreferences = getSharedPreferences(Preferences, Context.MODE_PRIVATE);
 
         mostrarReportes();
 
@@ -61,7 +71,10 @@ public class ConsultaReportes extends AppCompatActivity {
 
         cursorReportes.close();
 
-        adapter = new ReporteAdaptador(this, R.layout.list_layout_reportes, reportesList, mDatabase);
+        String cargo = sharedPreferences.getString(Position, "default");
+        String nombre = sharedPreferences.getString(Name, "default");
+
+        adapter = new ReporteAdaptador(this, R.layout.list_layout_reportes, reportesList, mDatabase, cargo, nombre);
 
         //adding the adapter to listview
         listViewReportes.setAdapter(adapter);
