@@ -7,9 +7,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,41 +45,59 @@ public class ConsultaReportes extends AppCompatActivity {
         mostrarReportes();
 
         cerrados = (Button) findViewById(R.id.cerrados);
-        cerrados.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), ReportesCerrados.class);
-                startActivity(i);
-                finish();
-            }
-        });
+
+        String cargo = sharedPreferences.getString(Position, "default");
+
+        if(cargo.equals("editor"))
+            cerrados.setVisibility(View.GONE);
+        else
+            cerrados.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(getApplicationContext(), ReportesCerrados.class);
+                    startActivity(i);
+                    finish();
+                }
+            });
     }
 
     private void mostrarReportes() {
-        Cursor cursorReportes = mDatabase.rawQuery("SELECT * FROM eventos where estado='abierto'", null);
+        Cursor cursorReportes = null;
 
-        if (cursorReportes.moveToFirst()) {
-            do {
-                reportesList.add(new Reporte(
-                        cursorReportes.getInt(0),
-                        cursorReportes.getString(1),
-                        cursorReportes.getString(2),
-                        cursorReportes.getString(3),
-                        cursorReportes.getString(4),
-                        cursorReportes.getString(5)
-                ));
-            } while (cursorReportes.moveToNext());
+        try {
+            cursorReportes = mDatabase.rawQuery("SELECT * FROM eventos where estado='abierto'", null);
+
+
+            if (cursorReportes.moveToFirst()) {
+                do {
+                    reportesList.add(new Reporte(
+                            cursorReportes.getInt(0),
+                            cursorReportes.getString(1),
+                            cursorReportes.getString(2),
+                            cursorReportes.getString(3),
+                            cursorReportes.getString(4),
+                            cursorReportes.getString(5)
+                    ));
+                } while (cursorReportes.moveToNext());
+            }
+
+            cursorReportes.close();
+
+            String cargo = sharedPreferences.getString(Position, "default");
+            String nombre = sharedPreferences.getString(Name, "default");
+
+            Log.e("cantidad de reportes", Integer.toString(reportesList.size()));
+            if (reportesList.size() == 0 && cargo.equals("editor")) {
+                Toast.makeText(getApplicationContext(), "No hay reportes", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(getApplicationContext(), MainActivityFaq.class));
+            } else {
+                adapter = new ReporteAdaptador(this, R.layout.list_layout_reportes, reportesList, mDatabase, cargo, nombre);
+                //adding the adapter to listview
+                listViewReportes.setAdapter(adapter);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
-        cursorReportes.close();
-
-        String cargo = sharedPreferences.getString(Position, "default");
-        String nombre = sharedPreferences.getString(Name, "default");
-
-        adapter = new ReporteAdaptador(this, R.layout.list_layout_reportes, reportesList, mDatabase, cargo, nombre);
-
-        //adding the adapter to listview
-        listViewReportes.setAdapter(adapter);
     }
 
 }

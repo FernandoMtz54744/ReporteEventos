@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Reporte de Eventos</string>
+    <string name="app_name">Soporte</string>
 
     <array name="modulos">
         <item>Login</item>
@@ -18,5 +18,19 @@
         <item>Ingeniero 1</item>
         <item>Ingeniero 2</item>
         <item>Ingeniero 3</item>
+    </array>
+
+    // FAQ //
+    <array name="spinner">
+        <item>Terminos y Condiciones</item>
+        <item>Funcionalidades</item>
+        <item>Labores de Mantenimiento</item>
+        <item>Organigrama</item>
+        <item>Soporte Tecnico</item>
+    </array>
+
+    <array name="spinner2">
+        <item>Publicable</item>
+        <item>No publicable</item>
     </array>
 </resources>

@@ -17,10 +17,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".ReportesCerrados" />
-        <activity android:name=".MainActivity">
-
-        </activity>
+        <activity android:name=".MainActivity"></activity>
         <activity android:name=".ConsultaReportes" />
+        <activity android:name=".MainActivityFaq"></activity>
+        <activity android:name=".EmployeeActivity" />
+        <activity android:name=".Publicacion" />
     </application>
 
 </manifest>

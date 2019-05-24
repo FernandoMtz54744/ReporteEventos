@@ -20,11 +20,12 @@ public class Login extends AppCompatActivity {
     static final String Position = "positionKey";
 
     static final String[][] Users = { // Usuario, Contraseña, Cargo
-                                        {"gerente", "gerente", "gerente"},
+                                        {"gerenteS", "gerenteS", "gerenteS"},
                                         {"ingeniero 1", "ingeniero 1","ingeniero"},
                                         {"ingeniero 2", "ingeniero 2", "ingeniero"},
                                         {"ingeniero 3", "ingeniero 3", "ingeniero"},
-                                        {"operador", "operador", "operador"}
+                                        {"operador", "operador", "operador"},
+                                        {"editor", "editor", "editor"}
                                     };
 
     SharedPreferences sharedPreferences;
@@ -57,7 +58,11 @@ public class Login extends AppCompatActivity {
                         editor.putString(Name, usuario);
                         editor.putString(Position, cargo);
                         editor.commit();
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        Intent intent = null;
+                        if(cargo.equals("gerenteS") || cargo.equals("ingeniero") || cargo.equals("operador"))
+                            intent = new Intent(getApplicationContext(), MainActivity.class);
+                        else if(cargo.equals("editor"))
+                            intent = new Intent(getApplicationContext(), MainActivityFaq.class);
                         startActivity(intent);
                     }
                 }

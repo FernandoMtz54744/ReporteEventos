@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,70 +54,148 @@ public class ReporteAdaptador extends ArrayAdapter<Reporte> {
         TextView descripcion = view.findViewById(R.id.descripcionV);
         TextView ingeniero = view.findViewById(R.id.ingenieroV);
 
+
         reportante.setText(reporte.getReportante());
         modulo.setText(reporte.getModulo());
         clasificacion.setText(String.valueOf(reporte.getClasificacion()));
         descripcion.setText(reporte.getDescripcion());
         ingeniero.setText(reporte.getIngeniero());
 
-        Button buttonCerrar = view.findViewById(R.id.cerrar);
-        Button buttonEditar = view.findViewById(R.id.editar);
+        final Button buttonCerrar = view.findViewById(R.id.cerrar);
+        final Button buttonEditar = view.findViewById(R.id.editar);
 
-        if(cargo.equals("gerente") || (cargo.equals("ingeniero") && nombre.equals(reporte.getIngeniero().toLowerCase()))) {
-            buttonEditar.setVisibility(View.VISIBLE);
-        }else {
-            buttonEditar.setVisibility(View.GONE);
-        }
+        if(cargo.equals("gerenteS") || cargo.equals("ingeniero")) {
+            if (cargo.equals("gerenteS") || (cargo.equals("ingeniero") && nombre.equals(reporte.getIngeniero().toLowerCase()))) {
+                buttonEditar.setVisibility(View.VISIBLE);
+            } else {
+                buttonEditar.setVisibility(View.GONE);
+            }
 
-        if(cargo.equals("ingeniero") && nombre.equals(reporte.getIngeniero().toLowerCase())) {
-            buttonCerrar.setVisibility(View.VISIBLE);
-        }else {
+            if (cargo.equals("ingeniero") && nombre.equals(reporte.getIngeniero().toLowerCase())) {
+                buttonCerrar.setVisibility(View.VISIBLE);
+            } else {
+                buttonCerrar.setVisibility(View.GONE);
+            }
+
+            buttonEditar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    updateReporte(reporte, cargo);
+                }
+            });
+
+            //the delete operation
+            buttonCerrar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
+                    builder.setTitle("Seguro que quiere cerrar");
+                    builder.setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                            //Codigo de Cerrar reporte
+                            String sql = "UPDATE eventos \n" +
+                                    "SET estado = 'cerrado' \n" +
+                                    "WHERE idReporte = ?;\n";
+                            mDatabase.execSQL(sql, new Integer[]{reporte.getIdReporte()});
+                            Toast.makeText(mCtx, "Reporte Cerrado", Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+                    builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    });
+
+
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
+                }
+            });
+        }else if(cargo.equals("editor")) {
             buttonCerrar.setVisibility(View.GONE);
+            buttonEditar.setText("Crear pregunta");
+
+            buttonEditar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    boolean val = createPreguntaFaq(reporte, "editor");
+                    if(val == true) {
+                        buttonEditar.setText("Pregunta creada");
+                        buttonEditar.setEnabled(false);
+                    }
+                }
+            });
         }
-
-        buttonEditar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateReporte(reporte, cargo);
-            }
-        });
-
-        //the delete operation
-        buttonCerrar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
-                builder.setTitle("Seguro que quiere cerrar");
-                builder.setPositiveButton("Si", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                        //Codigo de Cerrar reporte
-                        String sql = "UPDATE eventos \n" +
-                                "SET estado = 'cerrado' \n" +
-                                "WHERE idReporte = ?;\n";
-                        mDatabase.execSQL(sql, new Integer[]{reporte.getIdReporte()});
-                        Toast.makeText(mCtx, "Reporte Cerrado", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-                builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                });
-
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
-
-            }
-        });
-
 
         return view;
     }
 
+
+    private boolean createPreguntaFaq(final Reporte reporte, String cargo) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
+        final boolean[] val = {false};
+
+        LayoutInflater inflater = LayoutInflater.from(mCtx);
+        View view = inflater.inflate(R.layout.dialog_crear_pregunta_reporte, null);
+        builder.setView(view);
+
+
+        final EditText editTextPregunta = view.findViewById(R.id.actpre);
+        final EditText editTextRespuesta = view.findViewById(R.id.actres);
+        final Spinner spinnerCategoria= view.findViewById(R.id.actspinner);
+        final Spinner spinnerEstado= view.findViewById(R.id.actspinner2);
+
+        editTextRespuesta.setText(reporte.clasificacion);
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+
+        view.findViewById(R.id.Actualizar).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String pre = editTextPregunta.getText().toString().trim();
+                String res = editTextRespuesta.getText().toString().trim();
+                String cat = spinnerCategoria.getSelectedItem().toString();
+                String es = spinnerEstado.getSelectedItem().toString();
+                String vestado = "no";
+
+                if (pre.isEmpty()) {
+                    editTextPregunta.setError("Favor de llenar el campo");
+                    editTextPregunta.requestFocus();
+                    return;
+                }
+
+                if (res.isEmpty()) {
+                    editTextPregunta.setError("Favor de llenar el campo");
+                    editTextPregunta.requestFocus();
+                    return;
+                }
+
+                String insertSQL = "INSERT INTO correes \n" +
+                        "(pregunta, respuesta, categoria, estado, vestado)\n" +
+                        "VALUES \n" +
+                        "(?, ?, ?, ?, ?);";
+
+                //using the same method execsql for inserting values
+                //this time it has two parameters
+                //first is the sql string and second is the parameters that is to be binded with the query
+                mDatabase.execSQL(insertSQL, new String[]{pre, res, cat, es, vestado});
+
+                val[0] = true;
+
+                Toast.makeText(view.getContext(), "Pregunta registrada", Toast.LENGTH_SHORT).show();
+
+                dialog.dismiss();
+            }
+        });
+
+        return val[0];
+    }
 
     private void updateReporte(final Reporte reporte, String cargo) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(mCtx);
@@ -137,7 +216,7 @@ public class ReporteAdaptador extends ArrayAdapter<Reporte> {
         clasificacion.setText(reporte.getClasificacion());
         descripcion.setText(reporte.getDescripcion());
 
-        if(cargo.equals("gerente")) {
+        if(cargo.equals("gerenteS")) {
             ingeniero.setVisibility(View.VISIBLE);
             tIngeniero.setVisibility(View.VISIBLE);
         }else {

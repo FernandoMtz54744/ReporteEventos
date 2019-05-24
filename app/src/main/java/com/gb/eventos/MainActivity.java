@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         modulos = (Spinner) findViewById(R.id.modulos);
         tIngeniero = (TextView) findViewById(R.id.tIngeniero);
 
-        if(sharedPreferences.getString(Position, "default").equals("gerente")) {
+        if(sharedPreferences.getString(Position, "default").equals("gerenteS")) {
             ingeniero.setVisibility(View.VISIBLE);
             tIngeniero.setVisibility(View.VISIBLE);
         }else {
